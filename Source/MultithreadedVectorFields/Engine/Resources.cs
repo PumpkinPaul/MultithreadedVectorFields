@@ -9,6 +9,5 @@ public static class Resources
     public static Texture2D PixelTexture;
 
     public static SpriteFont DefaultSpriteFont;
-    public static SpriteFont GameFont;
     public static SpriteFont SmallFont;
 }

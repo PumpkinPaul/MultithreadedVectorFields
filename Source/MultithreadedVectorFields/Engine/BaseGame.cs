@@ -112,19 +112,6 @@ public abstract class BaseGame : Game
         };
 
         var fontPath = Path.Combine(Path.GetFullPath("."), "Content", "Fonts", "SquaredDisplay.ttf");
-
-        Resources.GameFont = TtfFontBaker.Bake(
-            File.ReadAllBytes(fontPath),
-            96,
-            1024,
-            1024,
-            new[] {
-                CharacterRange.BasicLatin,
-                CharacterRange.Latin1Supplement,
-                CharacterRange.LatinExtendedA,
-                CharacterRange.Cyrillic
-           }).CreateSpriteFont(GraphicsDevice);
-
         Resources.SmallFont = TtfFontBaker.Bake(
             File.ReadAllBytes(fontPath),
             32,

@@ -170,8 +170,8 @@ public class MultithreadedVectorFieldsGame : BaseGame
         var text = "MULTITHREADED VECTOR FIELDS";
         var position = new Vector2(SCREEN_WIDTH * 0.5f, 430);
         SpriteBatch.BeginTextRendering();
-        SpriteBatch.DrawText(Resources.SmallFont, text, position, Color.White, Alignment.Centre);
         SpriteBatch.DrawText(Resources.SmallFont, text, position + new Vector2(1, -1), Color.Black, Alignment.Centre);
+        SpriteBatch.DrawText(Resources.SmallFont, text, position, Color.White, Alignment.Centre);
         SpriteBatch.End();
     }
 }
