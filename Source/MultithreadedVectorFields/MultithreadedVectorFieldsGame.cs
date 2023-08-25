@@ -39,7 +39,7 @@ public class MultithreadedVectorFieldsGame : BaseGame
     VectorFieldRenderer _vectorFieldRenderer;
 
     CalculateVectorFieldsJob _calculateVectorFieldsJob;
-    readonly Dictionary<Entity, VectorField> _vectorFields = new(AGENT_COUNT);
+    readonly Dictionary<Entity, VectorField> _vectorFields = new();// AGENT_COUNT);
     
     int _visibleVectorFieldIdx = 0;
 
