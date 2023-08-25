@@ -82,10 +82,8 @@ public sealed class CalculateVectorFieldsJob
         //_request and _results are BlockingCollection<T>, ideally suited for a multithreaded environment
         //where one thread produces data and another consumes it.
 
-        if (_requests.Count == 0)
+        if (_requests.TryTake(out var request) == false)
             return;
-
-        var request = _requests.Take();
 
         request.VectorField.Calculate(_tileMap, request.GoalX, request.GoalY, _width, _height);
 
