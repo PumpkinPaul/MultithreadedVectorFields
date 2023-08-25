@@ -40,7 +40,5 @@ public sealed class CreateVectorFieldSystem : MoonTools.ECS.System
                 (int)position.Value.Y / TileMap.TILE_SIZE,
                 entity);
         }
-
-        _calculateVectorFieldsJob.Start();
     }
 }

@@ -7,7 +7,6 @@ using MultithreadedVectorFields.Engine.Extensions;
 using MultithreadedVectorFields.Gameplay.GameMaps;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace MultithreadedVectorFields.Gameplay;
 
@@ -48,7 +47,7 @@ public sealed class VectorField
         _flowField = new Vector2[width, height];
     }
 
-    public void Calculate(TileMap tileMap, int goalX, int goalY, int width, int height, Action<VectorField> onComplete)
+    public void Calculate(TileMap tileMap, int goalX, int goalY, int width, int height)
     {
         //----------------------------------------------------------------------------------------------------
         //Cost Field
@@ -165,8 +164,6 @@ public sealed class VectorField
                     _flowField[xi, yi].Y = 0;
             }
         }
-
-        onComplete?.Invoke(this);
     }
 
     public enum Visualizer

@@ -3,7 +3,6 @@
 using MoonTools.ECS;
 using MultithreadedVectorFields.Gameplay.Components;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace MultithreadedVectorFields.Gameplay.Systems;
@@ -16,9 +15,11 @@ public sealed class ConsumeVectorFieldSystem : MoonTools.ECS.System
 
     public ConsumeVectorFieldSystem(
         World world,
+        Dictionary<Entity, VectorField> vectorFields,
         CalculateVectorFieldsJob calculateVectorFieldsJob
     ) : base(world)
     {
+        _vectorFields = vectorFields;
         _calculateVectorFieldsJob = calculateVectorFieldsJob;
     }
 
@@ -28,7 +29,7 @@ public sealed class ConsumeVectorFieldSystem : MoonTools.ECS.System
         {
             var result = _calculateVectorFieldsJob.Consume();
 
-            //_vectorFields[result.Entity] = result.VectorField;
+            _vectorFields[result.Entity] = result.VectorField;
             Set(result.Entity, new CreateVectorFieldComponent());
         }
     }

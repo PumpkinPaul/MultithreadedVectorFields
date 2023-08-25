@@ -17,7 +17,7 @@ public sealed class CalculateVectorFieldsJob
     readonly Dictionary<Entity, VectorField> _vectorFields;
     readonly Pool<VectorField> _vectorFieldPool;
 
-    readonly Queue<VectorFieldRequest> _requests = new();
+    readonly BlockingCollection<VectorFieldRequest> _requests = new();
     readonly BlockingCollection<VectorFieldResult> _results = new();
 
     public struct VectorFieldRequest
@@ -53,33 +53,34 @@ public sealed class CalculateVectorFieldsJob
         int goalY,
         Entity entity)
     {
-        _requests.Enqueue(new VectorFieldRequest
+        _requests.Add(new VectorFieldRequest
         {
             VectorField = _vectorFieldPool.Allocate(),
             GoalX = goalX,
             GoalY = goalY,
             Entity = entity
         });
+
+        MultithreadedVectorFieldsGame.Instance.DesktopThreadPool.AddTask(
+            ProcessRequest,
+            null,
+            null);
     }
 
-    public void Start()
+    void ProcessRequest()
     {
-        while (_requests.Count > 0)
-        {
-            var request = _requests.Dequeue();
+        if (_requests.Count == 0)
+            return;
 
-            MultithreadedVectorFieldsGame.Instance.DesktopThreadPool.AddTask(
-                () => request.VectorField.Calculate(_tileMap, request.GoalX, request.GoalY, _width, _height, (v) =>
-                {
-                    _results.Add(new()
-                    {
-                        Entity = request.Entity,
-                        VectorField = request.VectorField,
-                    });
-                }),
-                null,
-                null);
-        }
+        var request = _requests.Take();
+
+        request.VectorField.Calculate(_tileMap, request.GoalX, request.GoalY, _width, _height);
+
+        _results.Add(new()
+        {
+            Entity = request.Entity,
+            VectorField = request.VectorField,
+        });
     }
 
     public bool HasResults => _results.Count > 0;
@@ -90,8 +91,6 @@ public sealed class CalculateVectorFieldsJob
 
         if (_vectorFields.TryGetValue(result.Entity, out var vectorField))
             _vectorFieldPool.Deallocate(vectorField);
-
-        _vectorFields[result.Entity] = result.VectorField;
 
         return result;
     }

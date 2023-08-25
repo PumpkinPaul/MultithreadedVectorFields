@@ -70,7 +70,7 @@ public class MultithreadedVectorFieldsGame : BaseGame
 
         _systems = new MoonTools.ECS.System[]
         {
-            new ConsumeVectorFieldSystem(_world, _calculateVectorFieldsJob),
+            new ConsumeVectorFieldSystem(_world, _vectorFields, _calculateVectorFieldsJob),
 
             //Spawn the entities into the game world
             new AgentSpawnSystem(_world),
