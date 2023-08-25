@@ -1,7 +1,6 @@
 // Copyright Pumpkin Games Ltd. All Rights Reserved.
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using MoonTools.ECS;
 using MultithreadedVectorFields.Gameplay.Components;
 using MultithreadedVectorFields.Gameplay.GameMaps;
@@ -15,7 +14,7 @@ public readonly record struct AgentSpawnMessage(
 );
 
 /// <summary>
-/// Responsible for spawning Player entities with the correct components.
+/// Responsible for spawning agents with the correct components.
 /// </summary>
 public class AgentSpawnSystem : MoonTools.ECS.System
 {    

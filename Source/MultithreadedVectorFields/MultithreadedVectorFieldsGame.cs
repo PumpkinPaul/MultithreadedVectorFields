@@ -11,7 +11,6 @@ using MultithreadedVectorFields.Gameplay.Renderers;
 using MultithreadedVectorFields.Gameplay.Systems;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace MultithreadedVectorFields;
 
@@ -64,24 +63,36 @@ public class MultithreadedVectorFieldsGame : BaseGame
 
         _systems = new MoonTools.ECS.System[]
         {
+            //Assign calculated vector fields to agents
             new ConsumeVectorFieldSystem(_world, _vectorFields, _calculateVectorFieldsJob),
 
             //Spawn the entities into the game world
             new AgentSpawnSystem(_world),
 
             //Move the entities in the world
+            //Note - no movement implemented - might add some moving entities later
             new MovementSystem(_world),
+
+            //Calculate the vector field for agents
             new CreateVectorFieldSystem(_world, _calculateVectorFieldsJob),
 
             //Remove the dead entities
+            //Note - no deaths implemented
+            //- using Entity as a key into the vector fields dictionary so work would be required here if agents die
+            //- could also implement cancelling jobs for dead entities
             new DestroyEntitySystem(_world)
         };
 
         _spriteRenderer = new SpriteRenderer(_world, SpriteBatch);
         _vectorFieldRenderer = new VectorFieldRenderer(_world, SpriteBatch, _vectorFields);
+        
+        SpawnAgents();
+    }
 
-        const int AGENT_COUNT = 128;
+    private void SpawnAgents()
+    {
         var random = new FastRandom();
+        const int AGENT_COUNT = 128;
 
         for (var i = 0; i < AGENT_COUNT; i++)
         {
@@ -108,12 +119,16 @@ public class MultithreadedVectorFieldsGame : BaseGame
         if (KeyboardState.IsKeyDown(Keys.Escape) && PreviousKeyboardState.IsKeyUp(Keys.Escape))
             Exit();
 
+        //----------------------------------------------------------------------------------------------------
+        //Toggle through the different vector fields - the active one will be visualized
         if (_visibleVectorFieldIdx < _vectorFields.Count -1 && KeyboardState.IsKeyDown(Keys.OemPlus) && PreviousKeyboardState.IsKeyUp(Keys.OemPlus))
             _visibleVectorFieldIdx++;
 
         if (_visibleVectorFieldIdx > 0 && KeyboardState.IsKeyDown(Keys.OemMinus) && PreviousKeyboardState.IsKeyUp(Keys.OemMinus))
             _visibleVectorFieldIdx--;
 
+        //----------------------------------------------------------------------------------------------------
+        //ECS world update
         var delta = TimeSpan.FromSeconds(1000 / 60.0f);
         foreach (var system in _systems)
             system.Update(delta);
@@ -125,7 +140,19 @@ public class MultithreadedVectorFieldsGame : BaseGame
     {
         GraphicsDevice.Clear(Color.Black);
 
-        //Draw the world
+        //Draw the world - Ortho off centre
+
+        //                         width, height
+        //     -------------------------
+        //     |                       |
+        //     |                       |
+        //     |                       |
+        //     |                       |
+        //     |                       |
+        //     |                       |
+        //     -------------------------
+        // 0, 0
+
         SpriteBatch.Begin(0, BlendState.AlphaBlend, null, null, RasterizerState.CullClockwise, BasicEffect);
 
         //...gamemap
@@ -139,7 +166,7 @@ public class MultithreadedVectorFieldsGame : BaseGame
 
         SpriteBatch.End();
 
-        //Draw the UI
+        //Draw the 'UI'
         var text = "MULTITHREADED VECTOR FIELDS";
         var position = new Vector2(SCREEN_WIDTH * 0.5f, 430);
         SpriteBatch.BeginTextRendering();
