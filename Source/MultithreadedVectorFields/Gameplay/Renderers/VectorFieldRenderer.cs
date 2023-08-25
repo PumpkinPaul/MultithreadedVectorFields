@@ -10,16 +10,17 @@ namespace MultithreadedVectorFields.Gameplay.Renderers;
 
 public sealed class VectorFieldRenderer : Renderer
 {
-    readonly SpriteBatch _spriteBatch;
     readonly Dictionary<Entity, VectorField> _vectorFields;
+    readonly VectorFieldVisualizer _vectorFieldVisualizer;
 
     public VectorFieldRenderer(
         World world,
         SpriteBatch spriteBatch,
         Dictionary<Entity, VectorField> vectorField) : base(world)
     {
-        _spriteBatch = spriteBatch;
         _vectorFields = vectorField;
+
+        _vectorFieldVisualizer = new VectorFieldVisualizer(spriteBatch);
     }
 
     public void Draw(int idx)
@@ -27,6 +28,7 @@ public sealed class VectorFieldRenderer : Renderer
         if (_vectorFields.Count == 0)
             return;
 
-        _vectorFields.Values.ElementAt(idx).Draw(_spriteBatch, (int)TileMap.MAX_COLUMNS, (int)TileMap.MAX_ROWS, VectorField.Visualizer.HeatMap);
+        var vectorField = _vectorFields.Values.ElementAt(idx);
+        _vectorFieldVisualizer.Draw(vectorField, (int)TileMap.MAX_COLUMNS, (int)TileMap.MAX_ROWS);
     }
 }

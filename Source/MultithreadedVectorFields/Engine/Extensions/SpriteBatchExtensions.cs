@@ -3,6 +3,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Text;
 
 namespace MultithreadedVectorFields.Engine.Extensions;
 
@@ -21,6 +22,16 @@ public static class SpriteBatchExtensions
             position += new Vector2(-size.X / 2, -size.Y / 2);
 
         sb.DrawString(font, text, position, color, 0, Vector2.Zero, 1, SpriteEffects.FlipVertically, 0);
+    }
+
+    public static void DrawText(this SpriteBatch sb, SpriteFont font, StringBuilder stringBuilder, Vector2 position, Color color, Alignment alignment = Alignment.BottomLeft)
+    {
+        var size = font.MeasureString(stringBuilder);
+
+        if (alignment == Alignment.Centre)
+            position += new Vector2(-size.X / 2, -size.Y / 2);
+
+        sb.DrawString(font, stringBuilder, position, color, 0, Vector2.Zero, 1, SpriteEffects.FlipVertically, 0);
     }
 
     public static void DrawLine(this SpriteBatch sb, Vector2 start, Vector2 end, Color color, int thickness)

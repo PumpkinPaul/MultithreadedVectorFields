@@ -1,9 +1,6 @@
 // Copyright Pumpkin Games Ltd. All Rights Reserved.
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MultithreadedVectorFields.Engine;
-using MultithreadedVectorFields.Engine.Extensions;
 using MultithreadedVectorFields.Gameplay.GameMaps;
 using System;
 using System.Collections.Generic;
@@ -46,6 +43,11 @@ public sealed class VectorField
         _integrationField = new ushort[width, height];
         _flowField = new Vector2[width, height];
     }
+
+    public byte GetCost(int x, int y) => _costField[x, y];
+    public ushort GetIntegration(int x, int y) => _integrationField[x, y];
+    public ref Vector2 GetFlow(int x, int y) => ref _flowField[x, y];
+
 
     public void Calculate(TileMap tileMap, int goalX, int goalY, int width, int height)
     {
@@ -163,102 +165,6 @@ public sealed class VectorField
                 if (_integrationField[xi, yi + (int)flow.Y] == ushort.MaxValue)
                     _flowField[xi, yi].Y = 0;
             }
-        }
-    }
-
-    public enum Visualizer
-    {
-        Cost,
-        Integration,
-        FlowField,
-        HeatMap
-    }
-
-    public void Draw(SpriteBatch spriteBatch, int width, int height, Visualizer visualizer = Visualizer.HeatMap)
-    {
-        switch (visualizer)
-        {
-            case Visualizer.Cost:
-                for (var xi = 0; xi < width; xi++)
-                {
-                    for (var yi = 0; yi < height; yi++)
-                    {
-                        spriteBatch.DrawText(Resources.SmallFont, $"{_costField[xi, yi]}", new Vector2(TileMap.TILE_SIZE * xi, TileMap.TILE_SIZE * yi + 1), Color.White);
-                    }
-                }
-
-                break;
-
-            case Visualizer.Integration:
-                for (var xi = 0; xi < width; xi++)
-                {
-                    for (var yi = 0; yi < height; yi++)
-                    {
-                        if (_integrationField[xi, yi] < ushort.MaxValue)
-                            spriteBatch.DrawText(Resources.SmallFont, $"{_integrationField[xi, yi]}", new Vector2(TileMap.TILE_SIZE * xi, TileMap.TILE_SIZE * yi + 1), Color.Yellow);
-                    }
-                }
-
-                break;
-
-            case Visualizer.FlowField:
-                for (var xi = 0; xi < width; xi++)
-                {
-                    for (var yi = 0; yi < height; yi++)
-                    {
-                        if (_integrationField[xi, yi] == ushort.MaxValue)
-                            continue;
-
-                        var p = new Vector2(7 + (TileMap.TILE_SIZE * xi), 7 + (TileMap.TILE_SIZE * yi));
-                        spriteBatch.DrawPoint(p, Color.Red, 4);
-
-                        p = new Vector2(8 + (TileMap.TILE_SIZE * xi), 8 + (TileMap.TILE_SIZE * yi));
-
-                        spriteBatch.DrawLine(p, p + _flowField[xi, yi] * 6, Color.White);
-                    }
-                }
-
-                break;
-
-            case Visualizer.HeatMap:
-                var maxHeat = 0;
-                for (var xi = 0; xi < width; xi++)
-                {
-                    for (var yi = 0; yi < height; yi++)
-                    {
-                        var value = _integrationField[xi, yi];
-
-                        if (value >= byte.MaxValue)
-                            continue;
-
-                        maxHeat = Math.Max(maxHeat, value);
-                    }
-                }
-
-                var c = Color.Yellow;
-                var hsl = c.ToHsl();
-                var yellow = hsl.H;
-                for (var xi = 0; xi < width; xi++)
-                {
-                    for (var yi = 0; yi < height; yi++)
-                    {
-                        var value = _integrationField[xi, yi];
-
-                        if (value >= byte.MaxValue)
-                            continue;
-
-                        var ratio = (value / (float)maxHeat); //0.0f .. 1.0f
-
-                        hsl.H = MathHelper.Lerp(yellow, -120, ratio);
-                        var heatColour = hsl.ToRgb();
-                        var position = new Vector2(TileMap.TILE_SIZE * xi, TileMap.TILE_SIZE * yi);
-
-                        var box = new BoxF(0, 0, TileMap.TILE_SIZE, TileMap.TILE_SIZE);
-                        spriteBatch.DrawFilledBox(position, box, heatColour);
-                    }
-                }
-
-                break;
         }
     }
 
