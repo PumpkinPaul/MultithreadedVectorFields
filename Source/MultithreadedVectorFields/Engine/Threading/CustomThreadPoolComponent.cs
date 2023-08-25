@@ -25,7 +25,7 @@ public delegate void TaskFunction();
 /// ideal thread balancing. If you have multiple components, they will not know
 /// how to share the CPU between them fairly.
 /// </summary>
-public class DesktopThreadPoolComponent : GameComponent
+public class CustomThreadPoolComponent : GameComponent
 {
     readonly object _nextThreadTargetLock = new();
     int _nextThreadTarget = 0;
@@ -44,7 +44,7 @@ public class DesktopThreadPoolComponent : GameComponent
     /// expensive, so more threads than there are CPU cores is not recommended.
     /// </summary>
     /// <param name="game">Your game instance.</param>
-    public DesktopThreadPoolComponent(BaseGame game) : base(game)
+    public CustomThreadPoolComponent(BaseGame game) : base(game)
     {
         UpdateOrder = int.MinValue;
 

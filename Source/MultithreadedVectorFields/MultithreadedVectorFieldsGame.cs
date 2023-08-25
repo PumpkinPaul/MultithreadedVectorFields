@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MoonTools.ECS;
 using MultithreadedVectorFields.Engine;
+using MultithreadedVectorFields.Engine.Extensions;
 using MultithreadedVectorFields.Engine.Threading;
 using MultithreadedVectorFields.Gameplay;
 using MultithreadedVectorFields.Gameplay.GameMaps;
@@ -10,21 +11,15 @@ using MultithreadedVectorFields.Gameplay.Renderers;
 using MultithreadedVectorFields.Gameplay.Systems;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MultithreadedVectorFields;
 
 /// <summary>
-/// Simple single player vs computer implementation of the game, PONG.
+/// Experimental FNA project for generating agent vector fields in a multithreaded manner - with no runtime heap allocations
 /// </summary>
-/// <remarks>
-/// This will for the basis of subsequent multiplayer versions.
-/// These versions of pong are deliberately very simple, they'll use a basic pure ECS from Moontools but that is not the focus.
-/// </remarks>
 public class MultithreadedVectorFieldsGame : BaseGame
 {
-    public new static MultithreadedVectorFieldsGame Instance;
-    const int AGENT_COUNT = 128;
-
     readonly Dungeon _dungeon = new();
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -39,19 +34,18 @@ public class MultithreadedVectorFieldsGame : BaseGame
     VectorFieldRenderer _vectorFieldRenderer;
 
     CalculateVectorFieldsJob _calculateVectorFieldsJob;
-    readonly Dictionary<Entity, VectorField> _vectorFields = new();// AGENT_COUNT);
+    readonly Dictionary<Entity, VectorField> _vectorFields = new();
     
     int _visibleVectorFieldIdx = 0;
 
-    public DesktopThreadPoolComponent DesktopThreadPool { get; }
+    public CustomThreadPoolComponent ThreadPool { get; }
 
     public MultithreadedVectorFieldsGame()
     {
-        Instance = this;
         Window.Title = "Multi-threaded Vector Fields";
 
-        DesktopThreadPool = new DesktopThreadPoolComponent(this);
-        Components.Add(DesktopThreadPool);
+        ThreadPool = new CustomThreadPoolComponent(this);
+        Components.Add(ThreadPool);
     }
 
     protected override void OnLoadContent()
@@ -66,7 +60,7 @@ public class MultithreadedVectorFieldsGame : BaseGame
         base.BeginRun();
 
         _world = new World();
-        _calculateVectorFieldsJob = new(_vectorFields, _dungeon, 32, 32);
+        _calculateVectorFieldsJob = new(ThreadPool, _vectorFields, _dungeon, 32, 32);
 
         _systems = new MoonTools.ECS.System[]
         {
@@ -86,7 +80,9 @@ public class MultithreadedVectorFieldsGame : BaseGame
         _spriteRenderer = new SpriteRenderer(_world, SpriteBatch);
         _vectorFieldRenderer = new VectorFieldRenderer(_world, SpriteBatch, _vectorFields);
 
+        const int AGENT_COUNT = 128;
         var random = new FastRandom();
+
         for (var i = 0; i < AGENT_COUNT; i++)
         {
             var position = Vector2.Zero;
@@ -144,9 +140,11 @@ public class MultithreadedVectorFieldsGame : BaseGame
         SpriteBatch.End();
 
         //Draw the UI
-        SpriteBatch.Begin();
-        //SpriteBatch.DrawString(Resources.SmallFont, "hello", new Vector2(SCREEN_WIDTH * 0.25f, 21), Color.White);
-        //SpriteBatch.DrawString(Resources.GameFont, _gameState.Player2Score.ToString(), new Vector2(SCREEN_WIDTH * 0.75f, 21), Color.White);
+        var text = "MULTITHREADED VECTOR FIELDS";
+        var position = new Vector2(SCREEN_WIDTH * 0.5f, 430);
+        SpriteBatch.BeginTextRendering();
+        SpriteBatch.DrawText(Resources.SmallFont, text, position, Color.White, Alignment.Centre);
+        SpriteBatch.DrawText(Resources.SmallFont, text, position + new Vector2(1, -1), Color.Black, Alignment.Centre);
         SpriteBatch.End();
     }
 }

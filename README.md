@@ -52,3 +52,6 @@ Inspiration:
 Frameworks:
 - [FNA](https://github.com/FNA-XNA/FNA) - _an XNA4 reimplementation that focuses solely on developing a fully accurate XNA4 runtime for the desktop._
 - [MoonTools.ECS](https://gitea.moonside.games/MoonsideGames/MoonTools.ECS) _by MoonsideGames_
+
+Fonts:
+- [Squared Display](https://www.dafont.com/squared-display.font) _by Vikas Kumar_

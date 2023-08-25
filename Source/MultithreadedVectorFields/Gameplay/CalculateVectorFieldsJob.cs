@@ -11,18 +11,6 @@ namespace MultithreadedVectorFields.Gameplay;
 
 public sealed class CalculateVectorFieldsJob
 {
-    readonly TileMap _tileMap;
-    readonly int _width;
-    readonly int _height;
-
-    readonly Dictionary<Entity, VectorField> _vectorFields;
-    readonly Pool<VectorField> _vectorFieldPool;
-
-    readonly BlockingCollection<VectorFieldRequest> _requests = new();
-    readonly BlockingCollection<VectorFieldResult> _results = new();
-
-    readonly TaskFunction _taskFunction; //making this an instance field removes one source of memory allocation
-
     public struct VectorFieldRequest
     {
         public Entity Entity;
@@ -37,12 +25,27 @@ public sealed class CalculateVectorFieldsJob
         public VectorField VectorField;
     }
 
+    readonly TileMap _tileMap;
+    readonly int _width;
+    readonly int _height;
+
+    readonly CustomThreadPoolComponent _threadPool;
+    readonly Dictionary<Entity, VectorField> _vectorFields;
+    readonly Pool<VectorField> _vectorFieldPool;
+
+    readonly BlockingCollection<VectorFieldRequest> _requests = new();
+    readonly BlockingCollection<VectorFieldResult> _results = new();
+
+    readonly TaskFunction _taskFunction; //making this an instance field removes one source of memory allocation
+
     public CalculateVectorFieldsJob(
+        CustomThreadPoolComponent threadPool,
         Dictionary<Entity, VectorField> vectorFields,
         TileMap tileMap,
         uint width,
         uint height)
     {
+        _threadPool = threadPool;
         _vectorFields = vectorFields;
         _tileMap = tileMap;
         _width = (int)width;
@@ -66,7 +69,7 @@ public sealed class CalculateVectorFieldsJob
             VectorField = _vectorFieldPool.Allocate()
         });
 
-        MultithreadedVectorFieldsGame.Instance.DesktopThreadPool.AddTask(
+       _threadPool.AddTask(
             _taskFunction,
             null,
             null);

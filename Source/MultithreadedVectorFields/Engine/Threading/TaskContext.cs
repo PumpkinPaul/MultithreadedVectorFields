@@ -9,12 +9,12 @@ namespace MultithreadedVectorFields.Engine.Threading;
 
 public class TaskContext : ITaskContext, IDisposable
 {
-    internal DesktopThreadPoolComponent FnaThreadPoolComponent;
+    internal CustomThreadPoolComponent FnaThreadPoolComponent;
     internal TaskContext Next;
     internal ManualResetEvent Event = new(false);
     internal Worker Worker;
 
-    internal TaskContext(DesktopThreadPoolComponent tpc)
+    internal TaskContext(CustomThreadPoolComponent tpc)
     {
         FnaThreadPoolComponent = tpc;
     }
