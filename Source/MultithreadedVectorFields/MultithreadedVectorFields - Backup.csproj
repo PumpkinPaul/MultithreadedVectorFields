@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <Description>MultithreadedVectorFields</Description>
+    <Copyright>Copyright © 2023</Copyright>
+    <Authors>Pumpkin Games</Authors>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyVersion>0.0.3</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+	
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG_TOOLS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants)TRACE;</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Engine\Extensions\DirectoryInfoExtensions.cs" />
+    <Compile Remove="Engine\Extensions\EnumExtensions.cs" />
+    <Compile Remove="Engine\Extensions\FloatExtensions.cs" />
+    <Compile Remove="Engine\Extensions\IntExtensions.cs" />
+    <Compile Remove="Engine\Extensions\ListExtensions.cs" />
+    <Compile Remove="Engine\Extensions\ObjectExtensions.cs" />
+    <Compile Remove="Engine\Extensions\RectangleExtensions.cs" />
+    <Compile Remove="Engine\Extensions\TypeExtensions.cs" />
+    <Compile Remove="Engine\Extensions\XElementExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClrHeapAllocationAnalyzer" Version="3.0.0" />
+    <PackageReference Include="NakamaClient" Version="3.9.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="StbTrueTypeSharp" Version="1.26.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FNA">
+      <HintPath>..\..\Deploy\Dependencies\Windows\FNA.dll</HintPath>
+    </Reference>
+    <Reference Include="MoonTools.ECS">
+      <HintPath>..\..\Deploy\Dependencies\Windows\MoonTools.ECS.dll</HintPath>
+    </Reference>
+    <Reference Include="SpriteFontPlus.FNA">
+      <HintPath>..\..\Deploy\Dependencies\Windows\SpriteFontPlus.FNA.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\Fonts\SquaredDisplay.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\SpriteFonts\Debug.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\SpriteFonts\Default.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\SpriteFonts\Font.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="xcopy &quot;..\Deploy\Dependencies\Windows\x64\*.*&quot; &quot;$(OutDir)&quot; /Y /I /E" />
+  </Target>
+
+</Project>
