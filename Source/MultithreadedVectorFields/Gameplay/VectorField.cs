@@ -2,33 +2,17 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MoonTools.ECS;
 using MultithreadedVectorFields.Engine;
 using MultithreadedVectorFields.Engine.Extensions;
 using MultithreadedVectorFields.Gameplay.GameMaps;
-using MultithreadedVectorFields.Gameplay.Systems;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MultithreadedVectorFields.Gameplay;
 
 public sealed class VectorField
 {
-    public class VectorFieldState
-    {
-        public Pool<VectorFieldState> Pool;
-        public VectorField VectorField;
-        public TileMap TileMap;
-        public int GoalX;
-        public int GoalY;
-        public int Width;
-        public int Height;
-        public Entity Entity;
-        //public Action<VectorField> OnComplete;
-        public BlockingCollection<VectorFieldResult> Results;
-    };
-
     public readonly record struct Cell(
         int X,
         int Y
@@ -62,18 +46,6 @@ public sealed class VectorField
         _costField = new byte[width, height];
         _integrationField = new ushort[width, height];
         _flowField = new Vector2[width, height];
-    }
-
-    public void Calculate(VectorFieldState state)
-    {
-        Calculate(state.TileMap, state.GoalX, state.GoalY, state.Width, state.Height, null);
-        state.Results.Add(new()
-        {
-            Entity = state.Entity,
-            VectorField = state.VectorField,
-            Pool = state.Pool,
-            State = state
-        });
     }
 
     public void Calculate(TileMap tileMap, int goalX, int goalY, int width, int height, Action<VectorField> onComplete)

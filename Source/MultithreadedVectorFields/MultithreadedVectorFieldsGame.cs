@@ -9,7 +9,6 @@ using MultithreadedVectorFields.Gameplay.GameMaps;
 using MultithreadedVectorFields.Gameplay.Renderers;
 using MultithreadedVectorFields.Gameplay.Systems;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace MultithreadedVectorFields;
@@ -39,9 +38,9 @@ public class MultithreadedVectorFieldsGame : BaseGame
     SpriteRenderer _spriteRenderer;
     VectorFieldRenderer _vectorFieldRenderer;
 
+    CalculateVectorFieldsJob _calculateVectorFieldsJob;
     readonly Dictionary<Entity, VectorField> _vectorFields = new(AGENT_COUNT);
-    readonly BlockingCollection<VectorFieldResult> _vectorFieldResults = new(AGENT_COUNT);
-    readonly Pool<VectorField> _vectorFieldPool = new(64, true, () => new VectorField((int)TileMap.MAX_COLUMNS, (int)TileMap.MAX_ROWS));
+    
     int _visibleVectorFieldIdx = 0;
 
     public DesktopThreadPoolComponent DesktopThreadPool { get; }
@@ -67,17 +66,18 @@ public class MultithreadedVectorFieldsGame : BaseGame
         base.BeginRun();
 
         _world = new World();
+        _calculateVectorFieldsJob = new(_vectorFields, _dungeon, 32, 32);
 
         _systems = new MoonTools.ECS.System[]
         {
-            new ConsumeVectorFieldSystem(_world, _vectorFieldResults, _vectorFields, _vectorFieldPool),
+            new ConsumeVectorFieldSystem(_world, _calculateVectorFieldsJob),
 
             //Spawn the entities into the game world
             new AgentSpawnSystem(_world),
 
             //Move the entities in the world
             new MovementSystem(_world),
-            new CreateVectorFieldSystem(_world, _dungeon, _vectorFieldResults, _vectorFieldPool),
+            new CreateVectorFieldSystem(_world, _calculateVectorFieldsJob),
 
             //Remove the dead entities
             new DestroyEntitySystem(_world)
