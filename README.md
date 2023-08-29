@@ -9,7 +9,7 @@ All of the traditional .Net means of starting a multithreaded process allocate s
 
 _You may be asking yourself, are these allocations _really_ a problem?_
 
-Depending on your game, the rate at which you alocate heap memeory, your target systems, this indeed may not be an issue for you. The allocations are small and short lived, resulting in fast, Gen 0 collections. 
+Depending on your game, the rate at which you alocate heap memory, your target systems, this indeed may not be an issue for you. The allocations are small and short lived, resulting in fast, Gen 0 collections. 
 
 However, realtime systems, especially games, are sensitive to garbage collection stalls and many developers take a policy of '**zero allocations during gameplay**'. Your code may need to run on lower powered devices like mobile phones or handhelp consoles and it's here where you'll really feel the benefit of fewer heap allocations.
 
